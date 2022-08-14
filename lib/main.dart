@@ -38,27 +38,37 @@ const Curve none = Threshold(0.0);
 
 const Curve sawtooth = SawTooth((1333 * 2222) ~/ 1333);
 
-const duration = Duration(milliseconds: 100);
+const duration = Duration(milliseconds: 30);
 
 class _MyHomePageState extends State<MyHomePage> {
-  var i = 5;
-  var _angle = 0.0;
+  var i = 10;
+  var _angle = _math.pi / 12;
   var _anglePointer = 0.0;
 
+  final _listItem = ["😾", "🪐", "🍭", "⭐", "🌞", "🌈", "☁️", "👓"];
+
   void play() {
-    _angle = 360.0 * i;
+    _angle = _math.pi;
     _anglePointer = 0;
+    var random =
+        _math.Random().nextInt(7) * ((_math.pi * 2) / _listItem.length) + 0.01;
     Timer.periodic(duration, (timer) {
       setState(() {
-        if (_angle <= 0) {
+        if (_angle >= _math.pi * 2 * i + random) {
           timer.cancel();
           _anglePointer = 0;
         } else {
-          _angle = _angle - 36;
+          _angle = _angle + (_math.pi * 2 / 10);
           _anglePointer = (_anglePointer > 0) ? -0.05 : 0.05;
         }
       });
     });
+  }
+
+  String getResult() {
+    var index = ((_angle / ((_math.pi * 2) / _listItem.length)).floor() %
+        _listItem.length);
+    return _listItem[_listItem.length - index - 1];
   }
 
   @override
@@ -70,20 +80,24 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 30),
+              child: Text(
+                getResult(),
+                style: const TextStyle(fontSize: 36),
+              ),
+            ),
             Stack(
               children: [
                 Container(
                   margin: const EdgeInsets.only(top: 30),
-                  child: Transform.translate(
-                    offset: const Offset(0, 30),
-                    child: Transform.rotate(
-                      angle: _angle,
-                      child: AnimatedContainer(
-                        duration: duration,
-                        curve: spin,
-                        child: Image.asset(
-                          "res/1x/img_round.png",
-                        ),
+                  child: Transform.rotate(
+                    angle: _angle,
+                    child: AnimatedContainer(
+                      duration: duration,
+                      curve: spin,
+                      child: Image.asset(
+                        "res/1x/img_round.png",
                       ),
                     ),
                   ),
@@ -95,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     duration: Duration.zero,
                     alignment: Alignment.topCenter,
                     child: Image.asset(
+                      height: 60,
                       "res/1x/img_pointer.png",
                       fit: BoxFit.fitHeight,
                     ),
