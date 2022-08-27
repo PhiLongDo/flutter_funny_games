@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'ZodiacWheelPage.dart';
+import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
 
 void main() {
   runApp(const MyApp());
