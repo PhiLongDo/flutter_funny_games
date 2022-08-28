@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:toss_coin/ui/pages/flip_game/flip_game_view.dart';
+import 'package:toss_coin/ui/pages/home/home_view.dart';
 import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
 
 void main() {
@@ -16,7 +18,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ZodiacWheelPage(),
+      initialRoute: "root",
+      routes: {
+        "root": (context) => const HomePage(),
+        "flip": (context) => const FlipGamePage(),
+        "wheel": (context) => const ZodiacWheelPage(),
+      },
     );
   }
 }
