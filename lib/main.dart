@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:toss_coin/ui/pages/draw/draw_view.dart';
 import 'package:toss_coin/ui/pages/flip_game/flip_game_view.dart';
 import 'package:toss_coin/ui/pages/home/home_view.dart';
 import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         "root": (context) => const HomePage(),
         "flip": (context) => const FlipGamePage(),
         "wheel": (context) => const ZodiacWheelPage(),
+        "draw": (context) => const DrawPage(),
       },
     );
   }
