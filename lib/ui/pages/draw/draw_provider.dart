@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -8,10 +9,17 @@ import 'draw_state.dart';
 class DrawProvider extends ChangeNotifier {
   final state = DrawState();
 
-  double get change => (state.strokes.isEmpty)
-      ? 0
-      : state.strokes.last.path.getBounds().height +
-          state.strokes.last.path.getBounds().width;
+  int get change => state.points.length;
+
+  void onStrokeColorChange(Color value) {
+    state.strokeColor = value;
+    notifyListeners();
+  }
+
+  void onStrokeWidthChange(double value) {
+    state.strokeWidth = value;
+    notifyListeners();
+  }
 
   void start(double startX, double startY) {
     final newStroke = Stroke(
@@ -19,6 +27,7 @@ class DrawProvider extends ChangeNotifier {
       width: state.strokeWidth,
       erase: state.isErasing,
     );
+    state.points.clear();
     newStroke.path.moveTo(startX, startY);
     state.strokes.add(newStroke);
     state.undoHistory.add(newStroke);
@@ -28,6 +37,7 @@ class DrawProvider extends ChangeNotifier {
 
   void add(double x, double y) {
     state.strokes.last.path.lineTo(x, y);
+    state.points.add(Point(x, y));
     notifyListeners();
   }
 

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ class DrawState {
   List<Stroke> strokes = [];
   List<Stroke> undoHistory = [];
   List<Stroke> redoStack = [];
+
+  List<Point> points = [];
 
   // cached current canvas size
   late Size canvasSize;

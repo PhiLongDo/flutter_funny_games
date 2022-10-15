@@ -21,7 +21,7 @@ class AppContainer extends StatelessWidget {
               child,
               showBackButton
                   ? Container(
-                      height: 50,
+                      height: 40,
                       alignment: Alignment.topLeft,
                       child: FloatingActionButton(
                         backgroundColor: Colors.lightGreen,
