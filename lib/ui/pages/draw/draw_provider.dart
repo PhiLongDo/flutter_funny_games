@@ -1,10 +1,14 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'FreehandPainter.dart';
 import 'draw_state.dart';
+import 'gdrive/google_drive.dart';
 
 class DrawProvider extends ChangeNotifier {
   final state = DrawState();
@@ -72,5 +76,9 @@ class DrawProvider extends ChangeNotifier {
     final converted = (await result.toByteData(format: ImageByteFormat.png))!
         .buffer
         .asUint8List();
+    Directory appDocDirectory = await getApplicationDocumentsDirectory();
+    final file = await File(path.join(appDocDirectory.path, 'funny_draw.png'))
+        .writeAsBytes(converted);
+    GoogleDrive().uploadFileToGoogleDrive(file);
   }
 }

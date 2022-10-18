@@ -66,55 +66,69 @@ class DrawPage extends StatelessWidget {
             children: [
               Align(
                 alignment: Alignment.topRight,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MaterialButton(
-                        color: provider.state.strokeColor,
-                        shape: const CircleBorder(),
-                        onPressed: () {
-                          showSettingStroke(
-                              context,
-                              provider.state.strokeColor,
-                              provider.state.strokeWidth,
-                              provider.onStrokeColorChange,
-                              provider.onStrokeWidthChange);
-                        },
-                        child: const SizedBox(width: 30, height: 30),
-                      ),
-                    ]),
+                child: _header(context, provider),
               ),
               Container(
-                margin: const EdgeInsets.only(top: 50),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: GestureDetector(
-                    onPanStart: (details) => provider.start(
-                      details.localPosition.dx,
-                      details.localPosition.dy,
-                    ),
-                    onPanUpdate: (details) {
-                      provider.add(
-                        details.localPosition.dx,
-                        details.localPosition.dy,
-                      );
-                    },
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        provider.state.canvasSize =
-                            Size(constraints.maxWidth, constraints.maxHeight);
-                        return CustomPaint(
-                          painter: FreehandPainter(provider.state),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
+                  margin: const EdgeInsets.only(top: 50),
+                  child: _canvas(context, provider)),
             ],
           ));
         });
+  }
+
+  Widget _header(BuildContext context, DrawProvider provider) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MaterialButton(
+            color: provider.state.strokeColor,
+            shape: const CircleBorder(),
+            onPressed: () {
+              showSettingStroke(
+                  context,
+                  provider.state.strokeColor,
+                  provider.state.strokeWidth,
+                  provider.onStrokeColorChange,
+                  provider.onStrokeWidthChange);
+            },
+            child: const SizedBox(width: 30, height: 30),
+          ),
+          IconButton(
+              onPressed: provider.convertToPng,
+              icon: const Icon(
+                Icons.save,
+                size: 35,
+                color: Colors.green,
+              ))
+        ]);
+  }
+
+  Widget _canvas(BuildContext context, DrawProvider provider) {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: GestureDetector(
+        onPanStart: (details) => provider.start(
+          details.localPosition.dx,
+          details.localPosition.dy,
+        ),
+        onPanUpdate: (details) {
+          provider.add(
+            details.localPosition.dx,
+            details.localPosition.dy,
+          );
+        },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            provider.state.canvasSize =
+                Size(constraints.maxWidth, constraints.maxHeight);
+            return CustomPaint(
+              painter: FreehandPainter(provider.state),
+            );
+          },
+        ),
+      ),
+    );
   }
 }
