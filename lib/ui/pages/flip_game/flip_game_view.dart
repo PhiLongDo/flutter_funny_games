@@ -19,9 +19,12 @@ class FlipGamePage extends StatelessWidget {
   }
 
   Widget _buildPage(BuildContext context) {
-    return Selector<FlipGameProvider, Tuple3<String, String, bool>>(
-        selector: (_, provider) => Tuple3(provider.state.valueA,
-            provider.state.valueB, provider.state.isPause),
+    return Selector<FlipGameProvider, Tuple4<String, String, bool, bool>>(
+        selector: (_, provider) => Tuple4(
+            provider.state.valueA,
+            provider.state.valueB,
+            provider.state.isPause,
+            provider.state.isAllOpened),
         builder: (context, tuple, _) {
           final provider =
               context.select((FlipGameProvider provider) => provider);
@@ -44,15 +47,15 @@ class FlipGamePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center, children: gameRow);
             childrenColumn.add(row);
           }
-          if (provider.state.isAllOpened){
+          if (tuple.item4) {
             provider.state.isPause = true;
           }
           return AppContainer(
-            child: (provider.state.isAllOpened)
+            child: (tuple.item4)
                 ? Center(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           const Text(
                             "You win!",
                             style: TextStyle(
@@ -71,7 +74,7 @@ class FlipGamePage extends StatelessWidget {
                             ),
                           )
                         ]),
-                )
+                  )
                 : AbsorbPointer(
                     absorbing: tuple.item3,
                     child: Column(

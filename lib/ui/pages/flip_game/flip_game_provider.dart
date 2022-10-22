@@ -50,6 +50,8 @@ class FlipGameProvider extends ChangeNotifier {
 
   void reset() {
     state.itemCanOpenCount = FlipGameState.width * FlipGameState.height;
+    state.stateOpened.clear();
+    state.stateVisible.clear();
     for (int y = 1; y <= FlipGameState.height; y++) {
       state.stateOpened
           .add(List.generate(FlipGameState.width, (index) => false));
@@ -60,14 +62,14 @@ class FlipGameProvider extends ChangeNotifier {
 
     state.textGame = List.generate(state.itemCanOpenCount, (index) => "");
     List<int> listIndex =
-    List.generate(state.itemCanOpenCount, (index) => index);
+        List.generate(state.itemCanOpenCount, (index) => index);
     for (int i = 0; i < state.itemCanOpenCount; i++) {
       var random = Random();
       var index = random.nextInt(state.itemCanOpenCount - i);
       state.textGame[listIndex[index]] = FlipGameState.listValue[i ~/ 2];
       state.valueGame[listIndex[index] ~/ FlipGameState.width]
-      [listIndex[index] % FlipGameState.width] =
-      state.textGame[listIndex[index]];
+              [listIndex[index] % FlipGameState.width] =
+          state.textGame[listIndex[index]];
       listIndex.removeAt(index);
     }
     state.isPause = false;
