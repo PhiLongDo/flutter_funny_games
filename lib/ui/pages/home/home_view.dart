@@ -27,13 +27,12 @@ class HomePage extends StatelessWidget {
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             childAspectRatio: 1,
             crossAxisCount: 2,
-            mainAxisSpacing: 3,
-            crossAxisSpacing: 3,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
           ),
           itemBuilder: (_, index) {
             return InkWell(
-              onTap: () =>
-                  Navigator.pushNamed(context, state.list[index].nameRoute!),
+              onTap: () => provider.navigateToFeature(context, index),
               child: Image.asset(state.list[index].image),
             );
           },
