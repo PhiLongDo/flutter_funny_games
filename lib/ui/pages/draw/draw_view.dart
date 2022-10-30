@@ -5,7 +5,9 @@ import 'package:tuple/tuple.dart';
 
 import '../../widgets/app_container.dart';
 import 'FreehandPainter.dart';
+import 'SizeSlider.dart';
 import 'draw_provider.dart';
+import 'draw_state.dart';
 
 class DrawPage extends StatelessWidget {
   const DrawPage({Key? key}) : super(key: key);
@@ -40,12 +42,11 @@ class DrawPage extends StatelessWidget {
                   labelTypes: const [],
                   pickerAreaHeightPercent: 0.8,
                 ),
-                Slider(
+                SizeSlider(
                     value: strokeWidth,
-                    onChanged: onWidthChanged,
-                    label: strokeWidth.toInt().toString(),
-                    min: 1,
-                    max: 30)
+                    onValueChanged: onWidthChanged,
+                    min: 1.0,
+                    max: 30.0)
               ],
             ),
           );
@@ -95,12 +96,21 @@ class DrawPage extends StatelessWidget {
             child: const SizedBox(width: 30, height: 30),
           ),
           IconButton(
-              onPressed: provider.convertToPng,
-              icon: const Icon(
-                Icons.save,
-                size: 35,
-                color: Colors.green,
-              ))
+            onPressed: () =>
+                provider.onStrokeColorChange(provider.state.backgroundColor),
+            icon: Image.asset("res/ic_eraser.png"),
+          ),
+          // TODO (DPLong): Chua luu duoc va thu muc pictures
+          /*IconButton(
+            onPressed: () {
+              provider.convertToPng(type: SaveType.gallery);
+            },
+            icon: const Icon(
+              Icons.save,
+              size: 35,
+              color: Colors.green,
+            ),
+          ),*/
         ]);
   }
 

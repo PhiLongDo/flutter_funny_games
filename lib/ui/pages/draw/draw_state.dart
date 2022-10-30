@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 typedef HistoryChanged = void Function(
     bool isUndoAvailable, bool isRedoAvailable);
 
+enum SaveType { gallery, gdrive }
+
 class DrawState {
   /// [Color] for background of canvas.
   Color backgroundColor = Colors.blue.shade50;
