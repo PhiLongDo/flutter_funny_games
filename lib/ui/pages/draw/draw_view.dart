@@ -101,7 +101,7 @@ class DrawPage extends StatelessWidget {
             icon: Image.asset("res/ic_eraser.png"),
           ),
           // TODO (DPLong): Chua luu duoc va thu muc pictures
-          /*IconButton(
+          IconButton(
             onPressed: () {
               provider.convertToPng(type: SaveType.gallery);
             },
@@ -110,7 +110,7 @@ class DrawPage extends StatelessWidget {
               size: 35,
               color: Colors.green,
             ),
-          ),*/
+          ),
         ]);
   }
 

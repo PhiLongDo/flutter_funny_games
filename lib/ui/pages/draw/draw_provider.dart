@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -63,6 +64,7 @@ class DrawProvider extends ChangeNotifier {
 
   // convert current canvas to png image data.
   Future<void> convertToPng({SaveType type = SaveType.gallery}) async {
+    var saveResult = false;
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
 
@@ -86,29 +88,39 @@ class DrawProvider extends ChangeNotifier {
       GoogleDrive().uploadFileToGoogleDrive(file);
     }
 
-    // TODO (DPLong): Chua luu duoc va thu muc pictures
     if (type == SaveType.gallery) {
       final timestamp = DateTime.now().toIso8601String();
-      final fileName = "funny-draw-$timestamp.png";
+      final fileName = "$timestamp.png";
       var result = await requestPermission();
       if (result) {
-        final picturesDirectory = await getExternalStorageDirectories(
-            type: StorageDirectory.pictures);
-        if (picturesDirectory != null && picturesDirectory.isNotEmpty) {
-          await File(path.join(picturesDirectory.first.path, fileName))
-              .writeAsBytes(converted);
+        final directory = await getExternalStorageDirectory();
+        if (directory != null) {
+          RegExp pathToDownloads = RegExp(r'.+0/');
+          final outputDirectory = Directory(
+              '${pathToDownloads.stringMatch(directory.path).toString()}Pictures/funny_draw');
+          if (!(await outputDirectory.exists())) {
+            await outputDirectory.create();
+          }
+          final saveRes = await File(path.join(outputDirectory.path, fileName)).writeAsBytes(converted);
+          if (saveRes.existsSync()){
+            saveResult = true;
+          }
         }
       }
     }
+    Fluttertoast.showToast(
+        msg: saveResult ? "Saved" : "Can not save",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        fontSize: 16.0
+    );
   }
 
   // TODO (DPLong): khong dung duoc tren Android 13
   Future<bool> requestPermission() async {
     var status = await permission.Permission.storage.request();
     if (status == permission.PermissionStatus.permanentlyDenied) {
-      // The user opted to never again see the permission request dialog for this
-      // app. The only way to change the permission's status now is to let the
-      // user manually enable it in the system settings.
       await permission.openAppSettings();
       status = await permission.Permission.storage.status;
     }
