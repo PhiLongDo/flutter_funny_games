@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:toss_coin/ui/pages/draw/draw_view.dart';
 import 'package:toss_coin/ui/pages/flip_game/flip_game_view.dart';
 import 'package:toss_coin/ui/pages/home/home_view.dart';
 import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode (SystemUiMode.manual, overlays: []);
   runApp(const MyApp());
 }
 
