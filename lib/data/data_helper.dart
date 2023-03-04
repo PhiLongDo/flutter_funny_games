@@ -1,23 +1,35 @@
 import 'dart:io';
 
-import 'package:toss_coin/data/models/app_result.dart';
+import 'package:dio/dio.dart';
 
-AppResult parseApiException(Exception ex) {
-  var errorMessage = "";
+import 'models/app_result.dart';
+
+ApiError parseApiException<T>(Exception ex) {
   switch (ex.runtimeType) {
+    case DioError:
+      {
+        switch ((ex as DioError).error.runtimeType) {
+          case SocketException:
+            {
+              return ApiError.networkError;
+            }
+          case HttpException:
+            {
+              return ApiError.serverError;
+            }
+          default:
+            return ApiError.unknownError;
+        }
+      }
     case SocketException:
       {
-        errorMessage = "Network error";
-        break;
+        return ApiError.networkError;
       }
     case HttpException:
       {
-        errorMessage = "Services error";
-        break;
+        return ApiError.serverError;
       }
     default:
-      errorMessage = "Unknown error";
+      return ApiError.unknownError;
   }
-
-  return AppResult(errorMessage, ResultStatus.failed, null);
 }

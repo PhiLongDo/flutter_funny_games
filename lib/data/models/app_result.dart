@@ -1,9 +1,11 @@
 class AppResult<T> {
-  final String? message;
+  final ApiError? error;
   final ResultStatus? status;
   final T? data;
 
-  AppResult(this.message, this.status, this.data);
+  AppResult(this.error, this.status, this.data);
 }
+
+enum ApiError { networkError, serverError, unknownError }
 
 enum ResultStatus { success, failed, warning }
