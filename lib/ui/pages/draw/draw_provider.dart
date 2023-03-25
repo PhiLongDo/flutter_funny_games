@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart' as permission;
+import 'package:permission_handler/permission_handler.dart';
 
 import 'FreehandPainter.dart';
 import 'draw_state.dart';
@@ -62,11 +63,22 @@ class DrawProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clean() {
+    state.strokes = [];
+    state.undoHistory = [];
+    state.redoStack = [];
+    state.points = [];
+    notifyListeners();
+  }
+
   // convert current canvas to png image data.
   Future<void> convertToPng({SaveType type = SaveType.gallery}) async {
-    var saveResult = false;
+    bool? saveResult = false;
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
+    final timestamp = DateTime.now();
+    final fileName =
+        "${timestamp.day}_${timestamp.month}_${timestamp.year}_${timestamp.hour}_${timestamp.minute}_${timestamp.second}.png";
 
     // Emulate painting using _FreehandPainter
     // recorder will record this painting
@@ -82,15 +94,14 @@ class DrawProvider extends ChangeNotifier {
         .asUint8List();
     if (type == SaveType.gdrive) {
       Directory temporaryDirectory = await getTemporaryDirectory();
-      final file =
-          await File(path.join(temporaryDirectory.path, 'funny_draw.png'))
-              .writeAsBytes(converted);
+      final file = await File(
+              path.join(temporaryDirectory.path, 'funny_draw_$fileName.png'))
+          .writeAsBytes(converted);
       GoogleDrive().uploadFileToGoogleDrive(file);
     }
 
     if (type == SaveType.gallery) {
-      final timestamp = DateTime.now().toIso8601String();
-      final fileName = "$timestamp.png";
+      // Save to album.
       var result = await requestPermission();
       if (result) {
         final directory = await getExternalStorageDirectory();
@@ -98,32 +109,52 @@ class DrawProvider extends ChangeNotifier {
           RegExp pathToDownloads = RegExp(r'.+0/');
           final outputDirectory = Directory(
               '${pathToDownloads.stringMatch(directory.path).toString()}Pictures/funny_draw');
-          if (!(await outputDirectory.exists())) {
-            await outputDirectory.create();
+          var isDirectoryExists = await outputDirectory.exists();
+          if (!isDirectoryExists) {
+            await outputDirectory.create(recursive: true);
           }
-          final saveRes = await File(path.join(outputDirectory.path, fileName)).writeAsBytes(converted);
-          if (saveRes.existsSync()){
+          try {
+            final file =
+                await File(path.join(outputDirectory.path, fileName)).create();
+            file.writeAsBytesSync(converted);
             saveResult = true;
+          } catch (_) {
+            if (kDebugMode) {
+              print(["Exception", _.toString()]);
+            }
+            saveResult = false;
           }
         }
       }
     }
     Fluttertoast.showToast(
-        msg: saveResult ? "Saved" : "Can not save",
+        msg: saveResult ?? false ? "Saved" : "Can not save",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        fontSize: 16.0
-    );
+        fontSize: 16.0);
   }
 
-  // TODO (DPLong): khong dung duoc tren Android 13
   Future<bool> requestPermission() async {
-    var status = await permission.Permission.storage.request();
-    if (status == permission.PermissionStatus.permanentlyDenied) {
-      await permission.openAppSettings();
-      status = await permission.Permission.storage.status;
+    // from android 10 (sdk 30), no storage permission required
+    if (Platform.isAndroid) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      if (androidInfo.version.sdkInt > 29) {
+        return true;
+      }
     }
-    return status == permission.PermissionStatus.granted;
+
+    var permission = Platform.isIOS == true
+        ? Permission.photos
+        : Platform.isAndroid == true
+            ? Permission.storage
+            : null;
+    var status = await permission?.request();
+    if (status == PermissionStatus.permanentlyDenied) {
+      await openAppSettings();
+      status = await permission?.status;
+    }
+    return status == PermissionStatus.granted;
   }
 }

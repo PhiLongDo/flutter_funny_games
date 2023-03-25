@@ -29,20 +29,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  provider: ^6.0.4
+  provider: ^6.0.5
+  http: any
   tuple: 2.0.1
   flutter_colorpicker: ^1.0.3
-  google_sign_in: ^5.4.2
+  google_sign_in: ^6.0.2
   googleapis: ^9.2.0
-  googleapis_auth: ^1.3.1
-  url_launcher: ^6.1.6
-  path_provider: ^2.0.11
+  googleapis_auth: ^1.4.0
+  url_launcher: ^6.1.10
+  path_provider: ^2.0.14
+  path: any
   permission_handler: ^10.2.0
-  fluttertoast: ^8.1.1
+  fluttertoast: ^8.2.1
   retrofit: '>=4.0.0 <5.0.0'
   logger: any  #for logging purpose
   json_annotation: ^4.8.0
-  dio: ^5.0.1
+  dio: ^5.0.3
+  shared_preferences: ^2.0.20
+  device_info_plus: ^8.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -64,16 +64,16 @@ class DrawPage extends StatelessWidget {
           final provider = context.select((DrawProvider provider) => provider);
           return AppContainer(
               child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: _header(context, provider),
-              ),
-              Container(
-                  margin: const EdgeInsets.only(top: 50),
-                  child: _canvas(context, provider)),
-            ],
-          ));
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: _header(context, provider),
+                  ),
+                  Container(
+                      margin: const EdgeInsets.only(top: 50),
+                      child: _canvas(context, provider)),
+                ],
+              ));
         });
   }
 

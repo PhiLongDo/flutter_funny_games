@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/models/app_result.dart';
+import '../../../data/repositories/repository.dart';
 import '../../widgets/app_container.dart';
 import 'home_provider.dart';
 
@@ -22,21 +25,38 @@ class HomePage extends StatelessWidget {
     return AppContainer(
       showBackButton: false,
       child: Center(
-        child: GridView.builder(
-          itemCount: state.list.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            childAspectRatio: 1,
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+        child: Stack(children: [
+          GridView.builder(
+            itemCount: state.list.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              childAspectRatio: 1,
+              crossAxisCount: 2,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            itemBuilder: (_, index) {
+              return InkWell(
+                onTap: () => provider.navigateToFeature(context, index),
+                child: Image.asset(state.list[index].image),
+              );
+            },
           ),
-          itemBuilder: (_, index) {
-            return InkWell(
-              onTap: () => provider.navigateToFeature(context, index),
-              child: Image.asset(state.list[index].image),
-            );
-          },
-        ),
+          Container(
+            alignment: Alignment.bottomRight,
+              child: InkWell(
+            onTap: () async {
+              if (kDebugMode) {
+                final apiResult = await DefaultRepository().getTasks();
+                if (apiResult.status == ResultStatus.success) {
+                  print("Success: ${apiResult.data}");
+                } else {
+                  print("Failed: ${apiResult.status} - ${apiResult.error}");
+                }
+              }
+            },
+            child: const Text("Test api"),
+          ))
+        ]),
       ),
     );
   }
