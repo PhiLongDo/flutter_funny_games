@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:toss_coin/ui/widgets/app_container.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../widgets/swipe_page.dart';
 import 'zodiac_wheel_provider.dart';
 
 /// The default curve used when spinning a [FortuneWidget].
@@ -31,56 +32,62 @@ class ZodiacWheelPage extends StatelessWidget {
         builder: (context, tuple, _) {
           final provider =
               context.select((ZodiacWheelProvider provider) => provider);
-          return AppContainer(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 10, bottom: 30),
-                  child: Text(
-                    provider.state.result,
-                    style: const TextStyle(fontSize: 36),
+          return SwipeToBackPage(
+            widthBack: 100,
+            onBack: () {
+              Navigator.pop(context);
+            },
+            child: AppContainer(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 10, bottom: 30),
+                    child: Text(
+                      provider.state.result,
+                      style: const TextStyle(fontSize: 36),
+                    ),
                   ),
-                ),
-                AbsorbPointer(
-                  absorbing: provider.state.isPlaying,
-                  child: GestureDetector(
-                    onPanEnd: (_) {
-                      provider.play();
-                    },
-                    child: Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(top: 30),
-                          child: Transform.rotate(
-                            angle: provider.state.angle,
-                            child: AnimatedContainer(
-                              duration: duration,
-                              curve: spin,
-                              child: Image.asset(
-                                provider.state.imgWheel,
+                  AbsorbPointer(
+                    absorbing: provider.state.isPlaying,
+                    child: GestureDetector(
+                      onPanEnd: (_) {
+                        provider.play();
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 30),
+                            child: Transform.rotate(
+                              angle: provider.state.angle,
+                              child: AnimatedContainer(
+                                duration: duration,
+                                curve: spin,
+                                child: Image.asset(
+                                  provider.state.imgWheel,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Transform.rotate(
-                          angle: provider.state.anglePointer,
-                          child: AnimatedContainer(
-                            curve: none,
-                            duration: Duration.zero,
-                            alignment: Alignment.topCenter,
-                            child: Image.asset(
-                              height: 60,
-                              provider.state.imgPointer,
-                              fit: BoxFit.fitHeight,
+                          Transform.rotate(
+                            angle: provider.state.anglePointer,
+                            child: AnimatedContainer(
+                              curve: none,
+                              duration: Duration.zero,
+                              alignment: Alignment.topCenter,
+                              child: Image.asset(
+                                height: 60,
+                                provider.state.imgPointer,
+                                fit: BoxFit.fitHeight,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         });
