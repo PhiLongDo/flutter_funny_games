@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:toss_coin/ui/pages/draw/draw_view.dart';
 import 'package:toss_coin/ui/pages/flip_game/flip_game_view.dart';
 import 'package:toss_coin/ui/pages/home/home_view.dart';
+import 'package:toss_coin/ui/pages/opencv/opencv_view.dart';
 import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
 import 'package:toss_coin/ui/widgets/CustomMaterialPageRoute.dart';
 
@@ -45,6 +46,8 @@ class MyApp extends StatelessWidget {
             );
           case "draw":
             return MaterialPageRoute(builder: (_) => const DrawPage());
+          case "camera":
+            return CustomPageRoute(builder: (_) => const OpencvPage());
           default:
             return null;
         }
