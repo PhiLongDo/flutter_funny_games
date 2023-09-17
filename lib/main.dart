@@ -4,12 +4,15 @@ import 'package:toss_coin/ui/pages/camera/camera_view.dart';
 import 'package:toss_coin/ui/pages/draw/draw_view.dart';
 import 'package:toss_coin/ui/pages/flip_game/flip_game_view.dart';
 import 'package:toss_coin/ui/pages/home/home_view.dart';
+import 'package:toss_coin/ui/pages/nonogram/nonogram_game.dart';
 import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
 import 'package:toss_coin/ui/widgets/CustomMaterialPageRoute.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
 
@@ -48,6 +51,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const DrawPage());
           case "camera":
             return CustomPageRoute(builder: (_) => const CameraPage());
+          case "nonogram":
+            return CustomPageRoute(builder: (_) => const NonogramPage());
           default:
             return null;
         }
