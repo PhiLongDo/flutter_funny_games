@@ -3,26 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/app_container.dart';
-import 'opencv_provider.dart';
+import 'camera_provider.dart';
 
-class OpencvPage extends StatelessWidget {
-  const OpencvPage({super.key});
+class CameraPage extends StatefulWidget {
+  const CameraPage({super.key});
+
+  @override
+  State<CameraPage> createState() => _CameraPageState();
+}
+
+class _CameraPageState extends State<CameraPage> {
+  CameraProvider? _provider;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (BuildContext context) => OpencvProvider()..init(),
+      create: (BuildContext context) => _provider = CameraProvider()..init(),
       builder: (context, child) => _buildPage(context),
     );
   }
 
+  @override
+  void dispose() {
+    _provider?.state.cameraController?.dispose();
+    super.dispose();
+  }
+
   Widget _buildPage(BuildContext context) {
-    return Selector<OpencvProvider, bool>(
+    return Selector<CameraProvider, bool>(
         selector: (_, provider) =>
             provider.state.cameraController?.value.isInitialized == true,
         builder: (context, cameraIsInitialized, _) {
           final provider =
-              context.select((OpencvProvider provider) => provider);
+              context.select((CameraProvider provider) => provider);
           return AppContainer(
             child: !cameraIsInitialized
                 ? Container()

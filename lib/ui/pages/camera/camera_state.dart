@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
 
-class OpencvState {
+class CameraState {
   CameraController? cameraController;
 
-  OpencvState() {}
+  CameraState() {}
 }

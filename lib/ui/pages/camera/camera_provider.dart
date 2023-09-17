@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'opencv_state.dart';
+import 'camera_state.dart';
 
-class OpencvProvider extends ChangeNotifier {
-  final state = OpencvState();
+class CameraProvider extends ChangeNotifier {
+  final state = CameraState();
 
   Future<void> init() async {
     var cameras = await availableCameras();
