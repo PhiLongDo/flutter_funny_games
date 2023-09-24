@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:toss_coin/services/background_fetch.dart';
 import 'package:toss_coin/ui/pages/camera/camera_view.dart';
 import 'package:toss_coin/ui/pages/draw/draw_view.dart';
 import 'package:toss_coin/ui/pages/flip_game/flip_game_view.dart';
@@ -8,11 +12,20 @@ import 'package:toss_coin/ui/pages/nonogram/nonogram_game.dart';
 import 'package:toss_coin/ui/pages/zodiac_wheel/zodiac_wheel_view.dart';
 import 'package:toss_coin/ui/widgets/CustomMaterialPageRoute.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+  if (Platform.isAndroid) {
+    // init AndroidAlarmManager
+    await AndroidAlarmManager.initialize();
+  }
+
+  if (Platform.isIOS) {
+    // init BackgroundFetch
+    initBackgroundFetch();
+  }
   runApp(const MyApp());
 }
 
