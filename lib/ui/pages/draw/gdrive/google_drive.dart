@@ -12,7 +12,6 @@ const _scopes = [
 class GoogleDrive {
   GoogleSignInAccount? _currentUser;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // clientId: _clientId,
     scopes: _scopes,
   );
 
@@ -34,7 +33,7 @@ class GoogleDrive {
     }
   }
 
-  uploadFileToGoogleDrive(File file) async {
+  Future<bool> uploadFileToGoogleDrive(File file) async {
     await _handleSignIn();
     final headers = await _currentUser?.authHeaders;
     if (headers != null) {
@@ -53,11 +52,14 @@ class GoogleDrive {
           fileToUpload,
           uploadMedia: ga.Media(file.openRead(), file.lengthSync()),
         );
-        print(response.driveId);
+
+        if (response.id != null) {
+          return true;
+        }
       }
     }
+    return false;
   }
-
 
 // check if the directory forlder is already available in drive , if available return its id
 // if not available create a folder in drive and return id

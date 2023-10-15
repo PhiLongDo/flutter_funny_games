@@ -97,7 +97,7 @@ class DrawProvider extends ChangeNotifier {
       final file = await File(
               path.join(temporaryDirectory.path, 'funny_draw_$fileName.png'))
           .writeAsBytes(converted);
-      GoogleDrive().uploadFileToGoogleDrive(file);
+      saveResult = await GoogleDrive().uploadFileToGoogleDrive(file);
     }
 
     if (type == SaveType.gallery) {
