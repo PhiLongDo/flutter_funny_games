@@ -7,6 +7,7 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
 
 import 'components/cell.dart';
 import 'components/cell_type_toggle.dart';
@@ -23,6 +24,8 @@ class NonogramPage extends StatefulWidget {
 }
 
 class _NonogramPageState extends State<NonogramPage> {
+  final game = NonogramGame();
+
   @override
   void initState() {
     SystemChrome.setPreferredOrientations(
@@ -34,13 +37,14 @@ class _NonogramPageState extends State<NonogramPage> {
   void dispose() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+    game.detach();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GameWidget<NonogramGame>.controlled(
-      gameFactory: NonogramGame.new,
+    return GameWidget<NonogramGame>(
+      game: game,
       overlayBuilderMap: {
         'GameCompleted': (_, game) => CompletedScreen(game: game),
       },
@@ -53,8 +57,8 @@ class NonogramGame extends FlameGame
   NonogramGame();
 
   static const double cellWidth = 1000.0;
-  static const int gameWidth = 4;
-  static const int gameHeight = 4;
+  static const int gameWidth = 10;
+  static const int gameHeight = 10;
   static const double gamePadding = 100.0;
   static const toolbarHeight = 1000.0;
   static const labelSize = 2500.0;
@@ -87,13 +91,10 @@ class NonogramGame extends FlameGame
           gameWidth * cellWidth + gamePadding * 2 + labelSize,
           gameHeight * cellWidth + gamePadding * 2 + toolbarHeight + labelSize)
       ..viewfinder.position = Vector2(
-          (gameWidth * cellWidth + toolbarHeight + labelSize) * 0.5 +
-              gamePadding,
-          0)
+          (gameWidth * cellWidth + gamePadding * 2 + labelSize) * 0.5, 0)
       ..viewfinder.anchor = Anchor.topCenter;
     add(_camera);
     //endregion
-    initPictureRecorder();
   }
 
   void loadNewWord() {
@@ -219,10 +220,7 @@ class NonogramGame extends FlameGame
     world.removeAll(world.children);
     loadNewWord();
     overlays.remove("GameCompleted");
-    initPictureRecorder();
   }
-
-  //endregion
 
   //region Drag handler
   @override
@@ -279,26 +277,57 @@ class NonogramGame extends FlameGame
     }
   }
 
-  //endregion
-
   //region Capture result
-  void initPictureRecorder() {
+  Future<void> createPictureResult() async {
     _recorder = ui.PictureRecorder();
-    final rect = Rect.fromLTWH(0.0, 0.0, size.x, size.y);
+    final gameZoom = _camera.viewfinder.zoom;
+    final gameSize = _camera.viewfinder.visibleGameSize!;
+    final deviceSize = size;
+    final left = (deviceSize.x - (gameSize.x * gameZoom)) / 2;
+    final top = (gameSize.y - toolbarHeight) * gameZoom;
+    final width = (gameSize.x - labelSize) * gameZoom;
+    final height = (gameSize.y - labelSize - toolbarHeight) * gameZoom;
+
+    final rect = Rect.fromLTWH(0.0, 0.0, deviceSize.x, deviceSize.y);
     final canvas = Canvas(_recorder!, rect);
     render(canvas);
-  }
 
-  Future<void> createPictureResult() async {
     pictureResult = null;
-    final image =
-        await _recorder!.endRecording().toImage(size.x.toInt(), size.y.toInt());
-
-    const rect =
-        Rect.fromLTWH(0.0, 0.0, cellWidth * gameWidth, cellWidth * gameHeight);
-    pictureResult = (await image.toByteData(format: ui.ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
+    final imageRecorded = await _recorder!
+        .endRecording()
+        .toImage(deviceSize.x.toInt(), deviceSize.y.toInt());
+    // pictureResult =
+    //     (await imageRecorded.toByteData(format: ui.ImageByteFormat.png))!
+    //         .buffer
+    //         .asUint8List();
+    img.PngDecoder().decode(
+        (await imageRecorded.toByteData(format: ui.ImageByteFormat.png))!
+            .buffer
+            .asUint8List());
+    // final image = img.Image.fromBytes(
+    //     width: deviceSize.x.toInt(),
+    //     height: deviceSize.y.toInt(),
+    //     bytes: (await imageRecorded.toByteData(
+    //             format: ui.ImageByteFormat.rawRgba))!
+    //         .buffer);
+    //
+    // print([left, top, width, height]);
+    // print([gameSize, labelSize, toolbarHeight]);
+    // print([image.width, image.height]);
+    //
+    pictureResult = img.PngEncoder().encode(
+      img.copyCrop(
+        img.PngDecoder().decode(
+            (await imageRecorded.toByteData(format: ui.ImageByteFormat.png))!
+                .buffer
+                .asUint8List())!,
+        x: 0, //left.toInt(),
+        y: 0, //top.toInt(),
+        width: width.toInt(),
+        height: height.toInt(),
+      ),
+      singleFrame: true,
+    );
   }
 //endregion
 }
