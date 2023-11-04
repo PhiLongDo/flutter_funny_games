@@ -1,11 +1,9 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 
 class AppContainer extends StatelessWidget {
   const AppContainer(
-      {Key? key, required this.child, this.showBackButton = true})
-      : super(key: key);
+      {super.key, required this.child, this.showBackButton = true});
 
   final Widget child;
   final bool showBackButton;

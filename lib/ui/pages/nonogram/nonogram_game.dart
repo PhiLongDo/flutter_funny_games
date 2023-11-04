@@ -24,30 +24,35 @@ class NonogramPage extends StatefulWidget {
 }
 
 class _NonogramPageState extends State<NonogramPage> {
-  final game = NonogramGame();
-
+  bool canOpen = false;
   @override
   void initState() {
     SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight])
+        .then((value) {
+      setState(() {
+        canOpen = true;
+      });
+    });
     super.initState();
   }
 
   @override
-  void dispose() {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
-    game.detach();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GameWidget<NonogramGame>(
-      game: game,
-      overlayBuilderMap: {
-        'GameCompleted': (_, game) => CompletedScreen(game: game),
+    return WillPopScope(
+      onWillPop: () async {
+        await SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+        return true;
       },
+      child: canOpen
+          ? GameWidget<NonogramGame>.controlled(
+              gameFactory: NonogramGame.new,
+              overlayBuilderMap: {
+                'GameCompleted': (_, game) => CompletedScreen(game: game),
+              },
+            )
+          : Container(),
     );
   }
 }
@@ -57,8 +62,8 @@ class NonogramGame extends FlameGame
   NonogramGame();
 
   static const double cellWidth = 1000.0;
-  static const int gameWidth = 10;
-  static const int gameHeight = 10;
+  static const int gameWidth = 5;
+  static const int gameHeight = 5;
   static const double gamePadding = 100.0;
   static const toolbarHeight = 1000.0;
   static const labelSize = 2500.0;
@@ -69,10 +74,14 @@ class NonogramGame extends FlameGame
   bool dragFill = true;
   List<Cell> dragOver = [];
 
+  @override
   final world = World();
   late final CameraComponent _camera;
   ui.PictureRecorder? _recorder;
   Uint8List? pictureResult;
+
+  var visibleGameSize = Vector2.zero();
+  var gameZoom = 1.0;
 
   @override
   Color backgroundColor() {
@@ -81,19 +90,30 @@ class NonogramGame extends FlameGame
 
   //region Create Game
   @override
-  FutureOr<void> onLoad() {
+  Future<FutureOr<void>> onLoad() async {
     loadNewWord();
-    add(world);
+    await add(world);
 
     //region Create Camera view
+    visibleGameSize = Vector2(
+        gameWidth * cellWidth + gamePadding * 2 + labelSize,
+        gameHeight * cellWidth + gamePadding * 2 + toolbarHeight + labelSize);
+
+    var zoomX = size.x / visibleGameSize.x;
+    var zoomY = size.y / visibleGameSize.y;
+    if (zoomX < zoomY) {
+      gameZoom = zoomX;
+    } else {
+      gameZoom = zoomY;
+    }
+
     _camera = CameraComponent(world: world)
-      ..viewfinder.visibleGameSize = Vector2(
-          gameWidth * cellWidth + gamePadding * 2 + labelSize,
-          gameHeight * cellWidth + gamePadding * 2 + toolbarHeight + labelSize)
+      ..viewfinder.zoom = gameZoom
       ..viewfinder.position = Vector2(
           (gameWidth * cellWidth + gamePadding * 2 + labelSize) * 0.5, 0)
       ..viewfinder.anchor = Anchor.topCenter;
-    add(_camera);
+
+    await add(_camera);
     //endregion
   }
 
@@ -173,24 +193,28 @@ class NonogramGame extends FlameGame
     for (var col = 0; col < gameWidth; col++) {
       var row = 0;
       if (vConnectedNumber[col].isEmpty) {
-        world.add(NumberLable(
-            col: col,
-            position: Vector2(
-                col * cellWidth - gamePadding,
-                (toolbarHeight + gamePadding * 4) +
-                    (cellWidth * gameHeight) +
-                    (row * cellWidth * 0.5)),
-            number: 0));
+        world.add(
+          NumberLable(
+              col: col,
+              position: Vector2(
+                  col * cellWidth - gamePadding,
+                  (toolbarHeight + gamePadding * 4) +
+                      (cellWidth * gameHeight) +
+                      (row * cellWidth * 0.5)),
+              number: 0),
+        );
       }
       for (var xx in vConnectedNumber[col]) {
-        world.add(NumberLable(
-            col: col,
-            position: Vector2(
-                col * cellWidth - gamePadding,
-                (toolbarHeight + gamePadding * 4) +
-                    (cellWidth * gameHeight) +
-                    (row * cellWidth * 0.5)),
-            number: xx));
+        world.add(
+          NumberLable(
+              col: col,
+              position: Vector2(
+                  col * cellWidth - gamePadding,
+                  (toolbarHeight + gamePadding * 4) +
+                      (cellWidth * gameHeight) +
+                      (row * cellWidth * 0.5)),
+              number: xx),
+        );
         row++;
       }
     }
@@ -244,10 +268,10 @@ class NonogramGame extends FlameGame
   }
 
   void onDragStart(DragStartInfo info) {
-    pointTap = info.eventPosition.game;
+    pointTap = info.eventPosition.widget;
     dragOver.clear();
     final cells =
-        componentsAtPoint(info.eventPosition.game).whereType<Cell>().toList();
+        componentsAtPoint(info.eventPosition.widget).whereType<Cell>().toList();
     if (cells.isNotEmpty) {
       dragFill = cells.first.typeSelected == null ||
           cells.first.typeSelected != cellTypeSelected;
@@ -262,7 +286,7 @@ class NonogramGame extends FlameGame
 
   void onDragUpdate(DragUpdateInfo info) {
     final cells =
-        componentsAtPoint(info.eventPosition.game).whereType<Cell>().toList();
+        componentsAtPoint(info.eventPosition.widget).whereType<Cell>().toList();
     for (final cell in cells) {
       if (!dragOver.contains(cell)) {
         if (dragFill) {
@@ -280,49 +304,32 @@ class NonogramGame extends FlameGame
   //region Capture result
   Future<void> createPictureResult() async {
     _recorder = ui.PictureRecorder();
-    final gameZoom = _camera.viewfinder.zoom;
-    final gameSize = _camera.viewfinder.visibleGameSize!;
-    final deviceSize = size;
-    final left = (deviceSize.x - (gameSize.x * gameZoom)) / 2;
-    final top = (gameSize.y - toolbarHeight) * gameZoom;
-    final width = (gameSize.x - labelSize) * gameZoom;
-    final height = (gameSize.y - labelSize - toolbarHeight) * gameZoom;
+    final left = (size.x - (visibleGameSize.x * gameZoom)) / 2;
+    final top = toolbarHeight * gameZoom;
+    final width = (visibleGameSize.x - labelSize) * gameZoom;
+    final height = (visibleGameSize.y - labelSize - toolbarHeight) * gameZoom;
 
-    final rect = Rect.fromLTWH(0.0, 0.0, deviceSize.x, deviceSize.y);
+    final rect = Rect.fromLTWH(0.0, 0.0, size.x, size.y);
     final canvas = Canvas(_recorder!, rect);
     render(canvas);
 
     pictureResult = null;
-    final imageRecorded = await _recorder!
-        .endRecording()
-        .toImage(deviceSize.x.toInt(), deviceSize.y.toInt());
-    // pictureResult =
-    //     (await imageRecorded.toByteData(format: ui.ImageByteFormat.png))!
-    //         .buffer
-    //         .asUint8List();
+    final imageRecorded =
+        await _recorder!.endRecording().toImage(size.x.toInt(), size.y.toInt());
+
     img.PngDecoder().decode(
         (await imageRecorded.toByteData(format: ui.ImageByteFormat.png))!
             .buffer
             .asUint8List());
-    // final image = img.Image.fromBytes(
-    //     width: deviceSize.x.toInt(),
-    //     height: deviceSize.y.toInt(),
-    //     bytes: (await imageRecorded.toByteData(
-    //             format: ui.ImageByteFormat.rawRgba))!
-    //         .buffer);
-    //
-    // print([left, top, width, height]);
-    // print([gameSize, labelSize, toolbarHeight]);
-    // print([image.width, image.height]);
-    //
+
     pictureResult = img.PngEncoder().encode(
       img.copyCrop(
         img.PngDecoder().decode(
             (await imageRecorded.toByteData(format: ui.ImageByteFormat.png))!
                 .buffer
                 .asUint8List())!,
-        x: 0, //left.toInt(),
-        y: 0, //top.toInt(),
+        x: left.toInt(),
+        y: top.toInt(),
         width: width.toInt(),
         height: height.toInt(),
       ),

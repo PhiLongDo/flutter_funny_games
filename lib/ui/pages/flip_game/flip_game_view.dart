@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:toss_coin/ui/widgets/app_container.dart';
@@ -8,7 +7,7 @@ import '../../widgets/item_flip_game.dart';
 import 'flip_game_provider.dart';
 
 class FlipGamePage extends StatelessWidget {
-  const FlipGamePage({Key? key}) : super(key: key);
+  const FlipGamePage({super.key});
 
   @override
   Widget build(BuildContext context) {

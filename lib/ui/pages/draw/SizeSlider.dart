@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 class SizeSlider extends StatefulWidget {
   const SizeSlider(
-      {Key? key,
+      {super.key,
       required this.value,
       required this.onValueChanged,
       this.max = 1.0,
-      this.min = 0.0})
-      : super(key: key);
+      this.min = 0.0});
 
   final double value;
   final Function(double) onValueChanged;

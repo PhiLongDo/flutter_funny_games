@@ -2,16 +2,11 @@ import 'package:flutter/cupertino.dart';
 
 class CustomPageRoute<T> extends CupertinoPageRoute<T> {
   CustomPageRoute({
-    required WidgetBuilder builder,
-    RouteSettings? settings,
-    bool maintainState = true,
-    bool fullscreenDialog = false,
-  }) : super(
-          builder: builder,
-          settings: settings,
-          maintainState: maintainState,
-          fullscreenDialog: fullscreenDialog,
-        );
+    required super.builder,
+    super.settings,
+    super.maintainState,
+    super.fullscreenDialog,
+  });
 
   @override
   @protected

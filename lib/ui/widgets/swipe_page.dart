@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 class SwipeToBackPage extends StatelessWidget {
   /// Creates a SwipeToBackPage
   const SwipeToBackPage(
-      {Key? key,
+      {super.key,
       required this.child,
       this.onBack,
       this.pageTurnCurve = Curves.ease,
       this.pageTurnDuration = const Duration(milliseconds: 100),
-      this.widthBack = 20})
-      : super(key: key);
+      this.widthBack = 20});
 
   final Widget child;
 

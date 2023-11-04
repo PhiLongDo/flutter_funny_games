@@ -13,7 +13,7 @@ import '../../widgets/app_container.dart';
 import 'home_provider.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
                       startAlarmTask();
                     }
                   },
-                  child: Text("Start services"),
+                  child: const Text("Start services"),
                 ),
                 TextButton(
                   onPressed: () {
@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
                       cancelAlarmTask();
                     }
                   },
-                  child: Text("Stop services"),
+                  child: const Text("Stop services"),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -90,7 +90,7 @@ class HomePage extends StatelessWidget {
                     print(backgroundValue);
                     print("----------------------------");
                   },
-                  child: Text("View "),
+                  child: const Text("View "),
                 ),
                 TextButton(
                   onPressed: () async {

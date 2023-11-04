@@ -23,7 +23,7 @@ class CompletedScreen extends StatelessWidget {
           const SizedBox(height: 8.0),
           Container(
             constraints: const BoxConstraints(minHeight: 150, maxHeight: 200),
-            decoration: BoxDecoration(border: Border.all()),
+            // decoration: BoxDecoration(border: Border.all()),
             child: Image.memory(game.pictureResult!),
           ),
           TextButton(onPressed: game.newGame, child: const Text("New Game"))

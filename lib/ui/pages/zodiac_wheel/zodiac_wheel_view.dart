@@ -15,7 +15,7 @@ const Curve none = Threshold(0.0);
 const Curve sawtooth = SawTooth((1333 * 2222) ~/ 1333);
 
 class ZodiacWheelPage extends StatelessWidget {
-  const ZodiacWheelPage({Key? key}) : super(key: key);
+  const ZodiacWheelPage({super.key});
 
   @override
   Widget build(BuildContext context) {

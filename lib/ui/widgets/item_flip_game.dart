@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 class ItemFlipGame extends StatelessWidget {
   const ItemFlipGame(
-      {Key? key,
+      {super.key,
       required this.text,
       required this.onTap,
       required this.visible,
-      required this.isOpen})
-      : super(key: key);
+      required this.isOpen});
   final String text;
   final VoidCallback onTap;
   final bool visible, isOpen;

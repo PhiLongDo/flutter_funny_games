@@ -10,7 +10,7 @@ import 'draw_provider.dart';
 import 'draw_state.dart';
 
 class DrawPage extends StatelessWidget {
-  const DrawPage({Key? key}) : super(key: key);
+  const DrawPage({super.key});
 
   @override
   Widget build(BuildContext context) {
