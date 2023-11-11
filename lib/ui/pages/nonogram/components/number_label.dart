@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../nonogram_game.dart';
 
-class NumberLable extends PositionComponent with HasGameRef<NonogramGame> {
-  NumberLable({
+class NumberLabel extends PositionComponent with HasGameRef<NonogramGame> {
+  NumberLabel({
     required super.position,
     required this.number,
     this.row,

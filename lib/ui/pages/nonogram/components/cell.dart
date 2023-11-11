@@ -3,7 +3,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 
 import '../nonogram_game.dart';
-import 'number_lable.dart';
+import 'number_label.dart';
 
 enum CellType {
   color("Color"),
@@ -144,13 +144,13 @@ class Cell extends PositionComponent
         cell.isTapped = true;
       }
     }
-    for (final lable in parent!.children
-        .whereType<NumberLable>()
+    for (final label in parent!.children
+        .whereType<NumberLabel>()
         .where((element) => element.row == row)) {
       if (rowValid != ValidateType.invalid) {
-        lable.changeTextToGray();
+        label.changeTextToGray();
       } else {
-        lable.changeTextToBlack();
+        label.changeTextToBlack();
       }
     }
 
@@ -173,13 +173,13 @@ class Cell extends PositionComponent
         cell.isTapped = true;
       }
     }
-    for (final lable in parent!.children
-        .whereType<NumberLable>()
+    for (final label in parent!.children
+        .whereType<NumberLabel>()
         .where((element) => element.col == col)) {
       if (colValid) {
-        lable.changeTextToGray();
+        label.changeTextToGray();
       } else {
-        lable.changeTextToBlack();
+        label.changeTextToBlack();
       }
     }
   }
@@ -188,13 +188,21 @@ class Cell extends PositionComponent
     var isCompleted = true;
     for (var row = 0; row < NonogramGame.gameHeight; row++) {
       for (var col = 0; col < NonogramGame.gameWidth; col++) {
-        if (game.matrix[row][col].type != game.matrix[row][col].typeSelected) {
+        if (game.matrix[row][col].type != game.matrix[row][col].typeSelected &&
+            (game.matrix[row][col].type != CellType.cross)) {
           isCompleted = false;
           break;
         }
       }
     }
     if (isCompleted) {
+      for (var row = 0; row < NonogramGame.gameHeight; row++) {
+        for (var col = 0; col < NonogramGame.gameWidth; col++) {
+          if (game.matrix[row][col].type == CellType.cross) {
+            game.matrix[row][col].isTapped = false;
+          }
+        }
+      }
       await game.createPictureResult();
       game.overlays.add("GameCompleted");
     }

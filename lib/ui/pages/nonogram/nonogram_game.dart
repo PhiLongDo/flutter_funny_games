@@ -11,7 +11,7 @@ import 'package:image/image.dart' as img;
 
 import 'components/cell.dart';
 import 'components/cell_type_toggle.dart';
-import 'components/number_lable.dart';
+import 'components/number_label.dart';
 import 'overlays/completed_screen.dart';
 
 const gameBackgroundColor = Color.fromARGB(255, 149, 255, 110);
@@ -30,8 +30,10 @@ class _NonogramPageState extends State<NonogramPage> {
     SystemChrome.setPreferredOrientations(
             [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight])
         .then((value) {
-      setState(() {
-        canOpen = true;
+      Future.delayed(const Duration(milliseconds: 40), () {
+        setState(() {
+          canOpen = true;
+        });
       });
     });
     super.initState();
@@ -166,16 +168,18 @@ class NonogramGame extends FlameGame
     for (var row = 0; row < gameHeight; row++) {
       var col = 0;
       if (hConnectedNumber[row].isEmpty) {
-        world.add(NumberLable(
+        world.add(NumberLabel(
             row: row,
             position: Vector2(
-                (cellWidth * gameWidth) + col * (cellWidth * 1.5),
+                (cellWidth * gameWidth) +
+                    col * (cellWidth * 0.5) -
+                    gamePadding * 2,
                 (toolbarHeight + gamePadding + cellWidth * 0.5) +
                     row * cellWidth),
             number: 0));
       }
       for (var xx in hConnectedNumber[row]) {
-        world.add(NumberLable(
+        world.add(NumberLabel(
             row: row,
             position: Vector2(
                 (cellWidth * gameWidth) +
@@ -194,7 +198,7 @@ class NonogramGame extends FlameGame
       var row = 0;
       if (vConnectedNumber[col].isEmpty) {
         world.add(
-          NumberLable(
+          NumberLabel(
               col: col,
               position: Vector2(
                   col * cellWidth - gamePadding,
@@ -206,7 +210,7 @@ class NonogramGame extends FlameGame
       }
       for (var xx in vConnectedNumber[col]) {
         world.add(
-          NumberLable(
+          NumberLabel(
               col: col,
               position: Vector2(
                   col * cellWidth - gamePadding,
