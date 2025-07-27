@@ -128,7 +128,7 @@ class DrawProvider extends ChangeNotifier {
       }
     }
     Fluttertoast.showToast(
-        msg: saveResult ?? false ? "Saved" : "Can not save",
+        msg: saveResult ? "Saved" : "Can not save",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,

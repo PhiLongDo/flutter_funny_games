@@ -98,7 +98,12 @@ class DrawPage extends StatelessWidget {
           IconButton(
             onPressed: () =>
                 provider.onStrokeColorChange(provider.state.backgroundColor),
-            icon: Image.asset("res/ic_eraser.png"),
+            icon: const Icon(
+              Icons.cleaning_services_sharp,
+              size: 35,
+              color: Colors.orange,
+            ),
+            iconSize: 35,
           ),
           // TODO (DPLong): Chua luu duoc va thu muc pictures
           IconButton(
