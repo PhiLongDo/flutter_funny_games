@@ -12,6 +12,7 @@ class Constants {
     ItemHomeModel(image: "res/ic_list_2.png", nameRoute: "wheel"),
     ItemHomeModel(image: "res/ic_list_3.png", nameRoute: "draw"),
     ItemHomeModel(image: "res/ic_list_4.png", nameRoute: "nonogram"),
+    ItemHomeModel(image: "res/ic_list_5.png", nameRoute: "calendar"),
     ItemHomeModel(image: "res/1x/coin_front.png", nameRoute: "camera"),
     ItemHomeModel(image: "res/ic_list_coming_soon.png"),
   ];

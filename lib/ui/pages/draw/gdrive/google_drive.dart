@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as ga;
 import 'package:http/http.dart' as http;
@@ -11,37 +12,43 @@ const _scopes = [
 
 class GoogleDrive {
   GoogleSignInAccount? _currentUser;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: _scopes,
-  );
+  final _googleSignIn = GoogleSignIn.instance;
 
   Future<void> _handleSignIn() async {
     try {
-      _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-        if (account != null) {
-          _currentUser = account;
-        }
+      _googleSignIn.authenticationEvents.listen((event) {
+        _currentUser = switch (event) {
+          GoogleSignInAuthenticationEventSignIn() => event.user,
+          GoogleSignInAuthenticationEventSignOut() => null,
+        };
       });
-      var account = await _googleSignIn.signInSilently();
+
+      final account = await _googleSignIn.authenticate(scopeHint: _scopes);
+
       if (_currentUser == null) {
-        _currentUser = await _googleSignIn.signIn();
+        await _googleSignIn.authorizationClient.authorizeServer(_scopes);
       } else {
         _currentUser = account;
       }
     } catch (error) {
-      print("SignIn EX: $error");
+      if (kDebugMode) {
+        print("SignIn EX: $error");
+      }
     }
   }
 
   Future<bool> uploadFileToGoogleDrive(File file) async {
     await _handleSignIn();
-    final headers = await _currentUser?.authHeaders;
+    final headers =
+        await _currentUser?.authorizationClient.authorizationHeaders(_scopes);
     if (headers != null) {
       final client = GoogleAuthClient(headers);
       var drive = ga.DriveApi(client);
       String? folderId = await _getFolderId(drive);
       if (folderId == null) {
-        print("Sign-in first Error");
+        if (kDebugMode) {
+          print("Sign-in first Error");
+        }
       } else {
         ga.File fileToUpload = ga.File();
         fileToUpload.parents = [folderId];
