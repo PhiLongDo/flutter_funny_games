@@ -21,7 +21,7 @@ enum ValidateType {
 }
 
 class Cell extends PositionComponent
-    with HasGameRef<NonogramGame>, TapCallbacks {
+    with HasGameReference<NonogramGame>, TapCallbacks {
   Cell({
     required super.position,
     required this.type,
@@ -34,7 +34,10 @@ class Cell extends PositionComponent
   final int row;
   final int col;
 
+  /// Designated cell type
   final CellType type;
+
+  /// Cell type of player
   CellType? typeSelected;
 
   bool isTapped = false;
@@ -103,10 +106,6 @@ class Cell extends PositionComponent
       typeSelected = null;
     }
 
-    if (game.cellTypeSelected == CellType.cross) {
-      return;
-    }
-
     checkRowCol();
     checkGameCompleted();
   }
@@ -138,6 +137,7 @@ class Cell extends PositionComponent
       }
     }
 
+    // Fill cross to row
     if (rowValid == ValidateType.completed) {
       for (var cell in game.matrix[row]) {
         cell.typeSelected = cell.type;
@@ -166,6 +166,7 @@ class Cell extends PositionComponent
       }
     }
 
+    // Fill cross to column
     if (colValid) {
       for (var i = 0; i < NonogramGame.gameHeight; i++) {
         var cell = game.matrix[i][col];
@@ -185,26 +186,33 @@ class Cell extends PositionComponent
   }
 
   Future<void> checkGameCompleted() async {
-    var isCompleted = true;
     for (var row = 0; row < NonogramGame.gameHeight; row++) {
       for (var col = 0; col < NonogramGame.gameWidth; col++) {
-        if (game.matrix[row][col].type != game.matrix[row][col].typeSelected &&
-            (game.matrix[row][col].type != CellType.cross)) {
-          isCompleted = false;
-          break;
+        // Check cross type
+        if (game.matrix[row][col].type == CellType.cross &&
+            game.matrix[row][col].typeSelected == CellType.color) {
+          // Game not completed yet
+          return;
+        }
+
+        // Check color type
+        if (game.matrix[row][col].type == CellType.color &&
+            game.matrix[row][col].typeSelected != CellType.color) {
+          // Game not completed yet
+          return;
         }
       }
     }
-    if (isCompleted) {
-      for (var row = 0; row < NonogramGame.gameHeight; row++) {
-        for (var col = 0; col < NonogramGame.gameWidth; col++) {
-          if (game.matrix[row][col].type == CellType.cross) {
-            game.matrix[row][col].isTapped = false;
-          }
+
+    // ---Fill cross on game completed---
+    for (var row = 0; row < NonogramGame.gameHeight; row++) {
+      for (var col = 0; col < NonogramGame.gameWidth; col++) {
+        if (game.matrix[row][col].type == CellType.cross) {
+          game.matrix[row][col].isTapped = false;
         }
       }
-      await game.createPictureResult();
-      game.overlays.add("GameCompleted");
     }
+    await game.createPictureResult();
+    game.overlays.add("GameCompleted");
   }
 }
